@@ -96,7 +96,6 @@ A recordset containing products with IDs 1 and 2.
 
 ---
 
-
 ### Context Management
 - **with_context(context)**: Returns a new recordset with the specified context.
     ```python
@@ -112,7 +111,7 @@ A recordset containing products with IDs 1 and 2.
     })
     # The newly created product will use the French context (e.g., French language for field labels).
     ```
-    `
+
 - **with_prefetch(ids)**: Returns a new recordset with specified prefetch ids.
     ```python
     # Example: Return a new recordset with specified prefetch IDs
@@ -140,6 +139,7 @@ A recordset containing products with IDs 1 and 2.
     specific_user = self.env.ref('base.user_admin')
     records_as_sudo_user = self.env['model.name'].sudo(specific_user).search([('field', '=', value)])
     ```
+---
 
 ### Record Conversion and Validation
 - **_convert_to_write(vals)**: Converts record values into a format suitable for writing to the database.
@@ -159,6 +159,15 @@ A recordset containing products with IDs 1 and 2.
     # If no error is raised, values can be safely used
     self.env['model.name'].create(values_to_validate)
     ```
+    ```python
+    # Example: Validating a new product's data
+    values = {'name': 'Valid Product', 'list_price': 50.00}
+    self.env['product.product']._validate_fields(values)
+    ```
+    **Output:**  
+    If the values are invalid, a `ValidationError` will be raised.
+
+---
 
 ### Data Loading and Import/Export
 - **load(fields, data)**: Loads data into specified fields.
@@ -179,6 +188,15 @@ A recordset containing products with IDs 1 and 2.
     result = self.env['model.name'].import_data(fields, data, mode='init', current_module='')
     # The result contains information about the import operation
     ```
+    ```python
+    # Example: Importing product data
+    fields = ['name', 'list_price']
+    data = [['Imported Product', 45.00], ['Another Product', 60.00]]
+    self.env['product.product'].import_data(fields, data)
+    ```
+    **Output:**  
+    Two new products will be imported with the provided names and prices.
+    
 - **_import_rows(rows, fields)**: Imports data rows into the model.
     ```python
     # Example: Import data rows into the model
@@ -197,6 +215,18 @@ A recordset containing products with IDs 1 and 2.
     # The result contains the exported data
     exported_data = result['datas']
     ```
+
+    ```python
+    # Example: Exporting product data
+    fields = ['name', 'list_price']
+    exported_data = self.env['product.product'].export_data(fields)
+    ```
+    **Output:**  
+    The exported data will be in the format:  
+    ```python
+    {'datas': [['Product A', 50.00], ['Product B', 70.00]]}
+    ```
+
 - **_import_record(data)**: Imports a single record.
     ```python
     # Example: Import a single record
@@ -205,6 +235,8 @@ A recordset containing products with IDs 1 and 2.
     self.env['model.name']._import_record(data)
     # This method is typically used internally during data import operations
     ```
+
+---
 
 ### Prefetching and Caching
 - **_prefetch()**: Pre-fetches the records.
@@ -215,6 +247,14 @@ A recordset containing products with IDs 1 and 2.
     records._prefetch()
     # This method is usually used internally to optimize performance by preloading related records
     ```
+    ```python
+    # Example: Prefetching products
+    products = self.env['product.product'].search([('list_price', '>', 20)])
+    products._prefetch()
+    ```
+    **Output:**  
+    Records will be prefetched, improving performance during future accesses.
+
 - **_prefetch_ids**: Accesses the prefetch IDs of the recordset.
     ```python
     # Example: Access the prefetch IDs of the recordset
@@ -231,6 +271,14 @@ A recordset containing products with IDs 1 and 2.
     self.env['model.name'].invalidate_cache(ids=records.ids, fields=['field1', 'field2'])
     # This ensures that the next time these records and fields are accessed, they are reloaded from the database
     ```
+    ```python
+    # Example: Invalidating the cache for a product's price
+    product = self.env['product.product'].browse(1)
+    self.env['product.product'].invalidate_cache([1], ['list_price'])
+    ```
+    **Output:**  
+    The product's price will be rel
+
 - **flush()**: Flushes the pending updates to the database.
     ```python
     # Example: Flush the pending updates to the database
@@ -241,6 +289,8 @@ A recordset containing products with IDs 1 and 2.
     self.env['model.name'].flush()
     # This ensures that all pending changes are written to the database immediately
     ```
+
+---
 
 ### Utility Methods
 - **copy(default=None)**: Duplicates a record.
@@ -314,6 +364,7 @@ A recordset containing products with IDs 1 and 2.
     flat_data = records._read_flat(['field1', 'field2'])
     # The result is a list of dictionaries with the specified fields
     ```
+---
 
 ### Navigation and Filtering
 - **filtered(domain)**: Filters the recordset based on the provided domain.
