@@ -1,57 +1,101 @@
-ORM (Object-Relational Mapping) in Odoo is a framework that allows developers to interact with the database in an object-oriented way rather than writing raw SQL queries. ORM abstracts the database layer, enabling developers to work with Python objects instead of database tables and records. This improves productivity, reduces the likelihood of errors, and makes the codebase more maintainable.
+# Odoo ORM Documentation
+
+## Overview
+Odoo ORM (Object-Relational Mapping) allows developers to interact with the database in an object-oriented manner, replacing raw SQL queries with Python objects. This abstraction ensures ease of use, maintainability, and a reduction in errors.
+
+---
 
 ## Key Features of Odoo ORM:
-1. **Automatic Table Creation**: Based on model definitions, Odoo ORM automatically creates the corresponding database tables.
-2. **Data Validation**: ORM ensures data integrity by validating data types and constraints.
-3. **Relations**: ORM supports one-to-many, many-to-one, and many-to-many relationships between models.
-4. **Inheritance**: Supports model inheritance, allowing the extension of existing models.
-5. **Easy Querying**: Allows for simple and complex queries using Python methods without writing SQL.
+1. **Automatic Table Creation**: Odoo ORM automatically creates corresponding database tables based on model definitions.
+2. **Data Validation**: Ensures data integrity by validating data types and constraints.
+3. **Relationships**: Supports one-to-many, many-to-one, and many-to-many relationships.
+4. **Inheritance**: Allows extending existing models through inheritance.
+5. **Querying**: Enables easy querying through Python methods without requiring SQL knowledge.
 
-## List Odoo ORM Methods:
+---
 
-### CRUD Operations:
+## Common ORM Methods
 
 ### CRUD Operations
-- **create(vals)**: Creates a new record with the given values.
-    ```python
-    record = self.env['model.name'].create({'field1': value1, 'field2': value2})
-    ```
-- **read(fields)**:  Reads the values of the fields for a record or a set of records.
-    ```python
-    records = self.env['model.name'].browse(record_id).read(['field1', 'field2'])
-    ```
-- **write(vals)**: Updates a record with the given values.
-    ```python
-    record = self.env['model.name'].browse(record_id)
-    record.write({'field1': new_value1, 'field2': new_value2})
-    ```
-- **unlink()**: Deletes a record or a set of records.
-    ```python
-    record = self.env['model.name'].browse(record_id)
-    record.unlink()
-    ```
+
+#### **create(vals)**  
+Creates a new record in the database.
+```python
+# Example: Creating a new product record
+new_product = self.env['product.product'].create({
+    'name': 'New Product',
+    'list_price': 25.00,
+    'default_code': 'PROD001'
+})
+```
+**Output:**  
+A new product with the specified name, price, and code will be created in the `product.product` model.
+
+#### **read(fields)**  
+Reads values from fields for specific records.
+```python
+# Example: Reading the name and price of a product
+product = self.env['product.product'].browse(1)  # Assume product with ID 1
+product_data = product.read(['name', 'list_price'])
+```
+**Output:**  
+```python
+[{'name': 'New Product', 'list_price': 25.00}]
+```
+
+#### **write(vals)**  
+Updates existing records.
+```python
+# Example: Updating the price of a product
+product = self.env['product.product'].browse(1)
+product.write({'list_price': 30.00})
+```
+**Output:**  
+The product with ID 1 will now have its price updated to 30.00.
+
+#### **unlink()**  
+Deletes records from the database.
+```python
+# Example: Deleting a product
+product = self.env['product.product'].browse(1)
+product.unlink()
+```
+**Output:**  
+The product with ID 1 will be deleted.
+
+---
 
 ### Searching and Browsing
-- **search(args)**: Searches for records matching the given domain.
-    ```python
-    # Example: Search for records in 'model.name' where 'field' equals 'value'
-    records = self.env['model.name'].search([('field', '=', value)])
-    ```
-- **search_count(args)**:  Returns the count of records matching the given domain.
-    ```python
-    # Example: Count records in 'model.name' where 'field' equals 'value'
-    count = self.env['model.name'].search_count([('field', '=', value)])
-    ```
-- **search_read(args, fields)**: Searches and reads records matching the given domain.
-    ```python
-    # Example: Search and read records in 'model.name' where 'field' equals 'value'
-    records = self.env['model.name'].search_read([('field', '=', value)], ['field1', 'field2'])
-    ```
-- **browse(ids)**: Retrieves records by their IDs.
-    ```python
-    # Example: Retrieve records in 'model.name' with specified IDs
-    records = self.env['model.name'].browse([1, 2, 3])
-    ```
+
+#### **search(args)**  
+Searches for records matching the specified domain.
+```python
+# Example: Searching for products with a price greater than 20
+products = self.env['product.product'].search([('list_price', '>', 20)])
+```
+**Output:**  
+A recordset containing products with prices greater than 20.
+
+#### **search_count(args)**  
+Counts the number of records matching a domain.
+```python
+# Example: Counting the number of products with a price greater than 20
+product_count = self.env['product.product'].search_count([('list_price', '>', 20)])
+```
+**Output:**  
+An integer representing the number of products with a price above 20.
+
+#### **browse(ids)**  
+Fetches records based on their IDs.
+```python
+# Example: Fetching products with IDs 1 and 2
+products = self.env['product.product'].browse([1, 2])
+```
+**Output:**  
+A recordset containing products with IDs 1 and 2.
+
+---
+
 
 ### Context Management
 - **with_context(context)**: Returns a new recordset with the specified context.
@@ -59,7 +103,16 @@ ORM (Object-Relational Mapping) in Odoo is a framework that allows developers to
     # Example: Return a new recordset with a specified context
     new_context = {'key': 'value'}
     records_with_context = self.env['model.name'].with_context(new_context).search([('field', '=', value)])
+
+    # Example: Creating a product with a specific context
+    context = {'lang': 'fr_FR'}
+    product_with_context = self.env['product.product'].with_context(context).create({
+        'name': 'Produit Français',
+        'list_price': 35.00
+    })
+    # The newly created product will use the French context (e.g., French language for field labels).
     ```
+    `
 - **with_prefetch(ids)**: Returns a new recordset with specified prefetch ids.
     ```python
     # Example: Return a new recordset with specified prefetch IDs
